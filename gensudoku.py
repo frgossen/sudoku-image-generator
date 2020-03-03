@@ -87,19 +87,23 @@ class SimpleSolver:
             for k in range(9):
 
                 if k != i:
-                    self.update_arc(k, j, val)
+                    self.update_arc(i, j, k, j, val)
 
                 if k != j:
-                    self.update_arc(i, k, val)
+                    self.update_arc(i, j, i, k, val)
 
                 iii = i0 + k % 3
                 jjj = j0 + k // 3
                 if i != iii and j != jjj:
-                    self.update_arc(iii, jjj, val)
+                    self.update_arc(i, j, iii, jjj, val)
 
         return self
 
-    def update_arc(self, i, j, val):
+    def update_arc(self, k, l, i, j, val):
+
+        # if self.sudoku.is_unique_value(i, j):
+        #     print (val, self.sudoku.get_unique_value(i, j))
+        #     assert val == self.sudoku.get_unique_value(i, j)
 
         prev_len = len(self.sudoku.get_values(i, j))
 
@@ -216,7 +220,7 @@ class Embedding:
         self.sudoku = sudoku
         self.canvas = None
 
-    def render(self, highlight_rectangle=False):
+    def render(self, highlight_quadrangle=False):
 
         # Determine dimensions for the intermediate rectangular rendering.
         xs, ys = [], []
@@ -243,7 +247,7 @@ class Embedding:
         self.canvas = self.compose(intermediate_transformed, self.template.background)
 
         # Highlight quadrangle.json.
-        if highlight_rectangle:
+        if highlight_quadrangle:
             opaque_red = (0, 0, 1, 1)
             thickness = 1
             cv2.polylines(self.canvas, np.int32([self.template.quadrangle]), thickness, opaque_red)
@@ -305,11 +309,13 @@ class Embedding:
 
 if __name__ == "__main__":
     # Parse command line arguments.
-    parser = argparse.ArgumentParser(description="Create Sudoku puzzles that resemble the look of a scanned newspaper.")
+    parser = argparse.ArgumentParser(
+        description="Generate Sudoku puzzles that mimics the look and feel of your daily newspaper.")
     parser.add_argument("-t", "--template", metavar="PATH", type=str, required=True,
                         help="path to the template directory")
     parser.add_argument("-s", "--seed", metavar="INT", type=int, help="random integer seed")
     parser.add_argument("-o", "--out-file", metavar="PATH", type=str, required=True, help="path to output file")
+    parser.add_argument("-x", "--highlight-quadrangle", action="store_true", help="highlight quadrangle")
     args = parser.parse_args()
 
     # Load template.
@@ -320,4 +326,8 @@ if __name__ == "__main__":
     generated_sudoku = creator.create_random_sudoku()
 
     # Render sudoku puzzle.
-    embedding = Embedding(chosen_template, generated_sudoku).render(highlight_rectangle=False).save(args.out_file)
+    embedding = Embedding(chosen_template, generated_sudoku).render(
+        highlight_quadrangle=args.highlight_quadrangle).save(args.out_file)
+
+    cv2.imshow("hey", embedding.canvas)
+    cv2.waitKey(0)
