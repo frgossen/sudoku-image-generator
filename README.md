@@ -1,6 +1,6 @@
 # Sudoku Puzzle Generator 
 
-![Example Sudokus Collection](./examples/example-sudoku-collection.png)
+![Examples Banner](./examples/examples-banner.png)
 
 ## My Mother is a Sudoku Enthusiast
 
@@ -20,7 +20,7 @@ The result: a Sudoku puzzle generator that mimics the desired look to a degree t
 ## Generate Your Own Sudoku Puzzles
 
 It's embedded in a simple Python script. 
-Use it with one of the provided templates, e.g. `templates/newspaper`: 
+Use it with one of the provided templates, e.g. `templates/newspaper`.
 
 ```sh
 ./gensudoku.py -t templates/newspaper -o my-first-sudoku.png
@@ -30,10 +30,17 @@ Use it with one of the provided templates, e.g. `templates/newspaper`:
 
 ![Newspaper Example Sudoku](./examples/newspaper-example-sudoku.png)
 
-A generated Sudoku in the format of said newspaper. 
+This Sudoku was generated in the format of said newspaper. 
 Find the template in `templates/newspaper`. 
+
+![Book Example Sudoku](./examples/book-example-sudoku.png)
+
+This template is derived from a [picture](https://www.flickr.com/photos/johnjack/4264107415) from [Random McRandomhead](https://www.flickr.com/photos/johnjack/) that I found on Flickr. 
 
 ![Plain Example Sudoku](./examples/plain-example-sudoku.png)
 
 A plain template for those who just want to generate Sudoku puzzles. 
 For this result, use the provided template `templates/plain`.
+
+
+ 
