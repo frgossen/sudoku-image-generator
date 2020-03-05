@@ -64,60 +64,61 @@ class Sudoku:
         return str_repr
 
 
-class SimpleSolver:
+class Solver:
 
     def __init__(self, sudoku):
         self.sudoku = sudoku
         self.queue = None
 
     def run(self):
-        self.queue = [(i, j) for i in range(9) for j in range(9) if
-                      self.sudoku.is_unique_value(i, j) or self.sudoku.is_no_value(i, j)]
 
+        # Propagate impact of unique and inconsistent cells.
+        self.queue = [(i, j) for i in range(9) for j in range(9) if self.sudoku.is_unique_value(i, j) or self.sudoku.is_no_value(i, j)]
+
+        # Process working queue.
         while len(self.queue) > 0:
             i, j = self.queue.pop(0)
+            i_block, j_block = i - i % 3,  j - j % 3
 
-            val = None
-            if self.sudoku.is_unique_value(i, j):
-                val = self.sudoku.get_unique_value(i, j)
-
-            i0 = i - i % 3
-            j0 = j - j % 3
-
+            # Iterate over dependent cells.
             for k in range(9):
 
+                # Cells in the same column dependent on each other.
                 if k != i:
-                    self.update_arc(i, j, k, j, val)
+                    i_dependent = k
+                    self.update_arc(i, j, i_dependent, j)
 
+                # Cells in the same row depend on each other.
                 if k != j:
-                    self.update_arc(i, j, i, k, val)
+                    j_dependent = k
+                    self.update_arc(i, j, i, j_dependent )
 
-                iii = i0 + k % 3
-                jjj = j0 + k // 3
-                if i != iii and j != jjj:
-                    self.update_arc(i, j, iii, jjj, val)
+                # Cells in the same block dependent on each other.
+                i_dependent = i_block + k % 3
+                j_dependent = j_block + k // 3
+                if i != i_dependent and j != j_dependent:
+                    self.update_arc(i, j, i_dependent, j_dependent)
 
         return self
 
-    def update_arc(self, k, l, i, j, val):
+    def update_arc(self, i, j, k, l):
+        assert self.sudoku.is_unique_value(i, j) or self.sudoku.is_no_value(i, j)
 
-        # if self.sudoku.is_unique_value(i, j):
-        #     print (val, self.sudoku.get_unique_value(i, j))
-        #     assert val == self.sudoku.get_unique_value(i, j)
+        # A unique value is suppressed in dependent cells.
+        if self.sudoku.is_unique_value(i, j):
+            suppressed_value = self.sudoku.get_unique_value(i, j)
 
-        prev_len = len(self.sudoku.get_values(i, j))
+            # Remove value and cascade if dependent cell becomes unique or inconsistent.
+            values = self.sudoku.get_values(k, l)
+            if suppressed_value in values:
+                values.remove(suppressed_value)
+                if len(self.sudoku.get_values(k, l)) <= 1:
+                    self.queue.append((k, l))
 
-        if val is not None:
-
-            cell = self.sudoku.get_values(i, j)
-            if val in cell:
-                cell.remove(val)
-
-        else:
-            self.sudoku.set_values(i, j, set())
-
-        if len(self.sudoku.get_values(i, j)) < prev_len and len(self.sudoku.get_values(i, j)) <= 1:
-            self.queue.append((i, j))
+        # An inconsistent value cascades to dependent cells.
+        elif not self.sudoku.is_no_value(k, l):
+            self.sudoku.set_no_value(k, l)
+            self.queue.append((k, l))
 
 
 class Creator:
@@ -135,7 +136,7 @@ class Creator:
         while True:
 
             # For the generation of a sudoku solution, we will always use the simple solver.
-            SimpleSolver(sudoku).run()
+            Solver(sudoku).run()
 
             # Once the sudoku is solved we have found a random sudoku solution.
             if self.is_solved(sudoku):
@@ -164,7 +165,7 @@ class Creator:
             # Check if unique cell value is needed for a deterministic sudoku task.
             sudoku_tmp = sudoku.copy()
             sudoku_tmp.set_any_value(i, j)
-            SimpleSolver(sudoku_tmp).run()
+            Solver(sudoku_tmp).run()
             if self.is_solved(sudoku_tmp):
                 sudoku.set_any_value(i, j)
 
@@ -191,40 +192,67 @@ class Template:
         self.path = path
         self.background = None
         self.digits = None
-        self.quadrangle = None
+        self.quadrangles = None
 
     def load(self):
+
         # Load background image.
         background_path = os.path.join(self.path, "background.png")
         self.background = cv2.imread(background_path, cv2.IMREAD_UNCHANGED).astype(np.float) / 255
+        width, height, cn = self.background.shape
+        assert cn == 4
 
         # Load the 9 digit images.
         self.digits = []
         for i in range(9):
             digit_path = os.path.join(self.path, str(i) + ".png")
             digit_mat = cv2.imread(digit_path, cv2.IMREAD_UNCHANGED).astype(np.float) / 255
+            width, height, cn = digit_mat.shape
+            assert cn == 4
             self.digits.append(digit_mat)
 
-        # Load quadrangle.json coordinates.
+        # Load quadrangles from JSON file.
         quadrangle_path = os.path.join(self.path, "quadrangle.json")
         with open(quadrangle_path, "r") as fin:
-            self.quadrangle = json.load(fin)
+            self.quadrangles = json.load(fin)
+            assert len(self.quadrangles) > 0
 
         return self
 
 
 class Embedding:
 
-    def __init__(self, template, sudoku):
+    def __init__(self, template, creator):
         self.template = template
-        self.sudoku = sudoku
+        self.creator = creator
         self.canvas = None
 
     def render(self, highlight_quadrangle=False):
 
+        # Use template background for the canvas.
+        width, height, cn = self.template.background.shape
+        self.canvas = self.template.background
+
+        for q in self.template.quadrangles:
+
+            # Create and render Sudoku puzzle per quadrangle in the template.
+            sudoku = self.creator.create_random_sudoku()
+            intermediate_transformed = self.render_perspectively(sudoku, q, width, height)
+            self.canvas = self.compose(intermediate_transformed, self.canvas)
+
+            # Highlight quadrangle if needed.
+            if highlight_quadrangle:
+                opaque_red = (0, 0, 1, 1)
+                thickness = 1
+                cv2.polylines(self.canvas, np.int32([q]), thickness, opaque_red)
+
+        return self
+
+    def render_perspectively(self, sudoku, quadrangle, width, height):
+
         # Determine dimensions for the intermediate rectangular rendering.
         xs, ys = [], []
-        for x, y in self.template.quadrangle:
+        for x, y in quadrangle:
             xs.append(x)
             ys.append(y)
         intermediate_width, intermediate_height = max(xs) - min(xs), max(ys) - min(ys)
@@ -232,29 +260,17 @@ class Embedding:
         intermediate_height *= 9
 
         # Determine perspective transformation.
-        points_rectangular = np.float32(
-            [[0, 0], [intermediate_width, 0], [intermediate_width, intermediate_height], [0, intermediate_height]])
-        points = np.float32(self.template.quadrangle)
+        points_rectangular = np.float32([[0, 0], [intermediate_width, 0], [intermediate_width, intermediate_height], [0, intermediate_height]])
+        points = np.float32(quadrangle)
         transformation = cv2.getPerspectiveTransform(points_rectangular, points)
 
         # Transform rendering.
-        width, height, cn = self.template.background.shape
-        assert cn == 4
-        intermediate = self.render_rectangularly(intermediate_width, intermediate_height)
+        intermediate = self.render_rectangularly(sudoku, intermediate_width, intermediate_height)
         intermediate_transformed = cv2.warpPerspective(intermediate, transformation, (height, width))
 
-        # Compose rendering.
-        self.canvas = self.compose(intermediate_transformed, self.template.background)
+        return intermediate_transformed
 
-        # Highlight quadrangle.json.
-        if highlight_quadrangle:
-            opaque_red = (0, 0, 1, 1)
-            thickness = 1
-            cv2.polylines(self.canvas, np.int32([self.template.quadrangle]), thickness, opaque_red)
-
-        return self
-
-    def render_rectangularly(self, width, height):
+    def render_rectangularly(self, sudoku, width, height):
 
         # Determine cell size.
         assert width % 9 == 0 and height % 9 == 0
@@ -270,8 +286,8 @@ class Embedding:
         canvas = np.zeros((height, width, 4), dtype=np.float)
         for i in range(9):
             for j in range(9):
-                if self.sudoku.is_unique_value(i, j):
-                    val = self.sudoku.get_unique_value(i, j)
+                if sudoku.is_unique_value(i, j):
+                    val = sudoku.get_unique_value(i, j)
                     x, y = j * cell_width, i * cell_height
                     canvas[y:y + cell_height, x:x + cell_width] = resized_digits[val]
 
@@ -294,8 +310,7 @@ class Embedding:
         # Compose color channels.
         result = np.zeros(shape, np.float)
         for i in range(3):
-            np.divide((a_alpha * a[:, :, i] + (1 - a_alpha) * b_alpha * b[:, :, i]), result_alpha, result[:, :, i],
-                      where=result_alpha != 0)
+            np.divide((a_alpha * a[:, :, i] + (1 - a_alpha) * b_alpha * b[:, :, i]), result_alpha, result[:, :, i], where=result_alpha != 0)
 
         # Merge result color and alpha channel.
         result[:, :, 3] = result_alpha
@@ -308,6 +323,7 @@ class Embedding:
 
 
 if __name__ == "__main__":
+
     # Parse command line arguments.
     parser = argparse.ArgumentParser(
         description="Generate Sudoku puzzles that mimics the look and feel of your daily newspaper.")
@@ -318,16 +334,14 @@ if __name__ == "__main__":
     parser.add_argument("-x", "--highlight-quadrangle", action="store_true", help="highlight quadrangle")
     args = parser.parse_args()
 
-    # Load template.
+    # Create and render Sudoku puzzles based on the given template.
     chosen_template = Template(args.template).load()
-
-    # Create sudoku puzzle.
     creator = Creator(seed=args.seed)
-    generated_sudoku = creator.create_random_sudoku()
+    embedding = Embedding(chosen_template, creator).render(        highlight_quadrangle=args.highlight_quadrangle).save(args.out_file)
 
-    # Render sudoku puzzle.
-    embedding = Embedding(chosen_template, generated_sudoku).render(
-        highlight_quadrangle=args.highlight_quadrangle).save(args.out_file)
+
+
+
 
     cv2.imshow("hey", embedding.canvas)
     cv2.waitKey(0)
