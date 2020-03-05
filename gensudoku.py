@@ -73,12 +73,13 @@ class Solver:
     def run(self):
 
         # Propagate impact of unique and inconsistent cells.
-        self.queue = [(i, j) for i in range(9) for j in range(9) if self.sudoku.is_unique_value(i, j) or self.sudoku.is_no_value(i, j)]
+        self.queue = [(i, j) for i in range(9) for j in range(9) if
+                      self.sudoku.is_unique_value(i, j) or self.sudoku.is_no_value(i, j)]
 
         # Process working queue.
         while len(self.queue) > 0:
             i, j = self.queue.pop(0)
-            i_block, j_block = i - i % 3,  j - j % 3
+            i_block, j_block = i - i % 3, j - j % 3
 
             # Iterate over dependent cells.
             for k in range(9):
@@ -91,7 +92,7 @@ class Solver:
                 # Cells in the same row depend on each other.
                 if k != j:
                     j_dependent = k
-                    self.update_arc(i, j, i, j_dependent )
+                    self.update_arc(i, j, i, j_dependent)
 
                 # Cells in the same block dependent on each other.
                 i_dependent = i_block + k % 3
@@ -195,7 +196,6 @@ class Template:
         self.quadrangles = None
 
     def load(self):
-
         # Load background image.
         background_path = os.path.join(self.path, "background.png")
         self.background = cv2.imread(background_path, cv2.IMREAD_UNCHANGED).astype(np.float) / 255
@@ -260,7 +260,8 @@ class Embedding:
         intermediate_height *= 9
 
         # Determine perspective transformation.
-        points_rectangular = np.float32([[0, 0], [intermediate_width, 0], [intermediate_width, intermediate_height], [0, intermediate_height]])
+        points_rectangular = np.float32(
+            [[0, 0], [intermediate_width, 0], [intermediate_width, intermediate_height], [0, intermediate_height]])
         points = np.float32(quadrangle)
         transformation = cv2.getPerspectiveTransform(points_rectangular, points)
 
@@ -310,7 +311,8 @@ class Embedding:
         # Compose color channels.
         result = np.zeros(shape, np.float)
         for i in range(3):
-            np.divide((a_alpha * a[:, :, i] + (1 - a_alpha) * b_alpha * b[:, :, i]), result_alpha, result[:, :, i], where=result_alpha != 0)
+            np.divide((a_alpha * a[:, :, i] + (1 - a_alpha) * b_alpha * b[:, :, i]), result_alpha, result[:, :, i],
+                      where=result_alpha != 0)
 
         # Merge result color and alpha channel.
         result[:, :, 3] = result_alpha
@@ -323,7 +325,6 @@ class Embedding:
 
 
 if __name__ == "__main__":
-
     # Parse command line arguments.
     parser = argparse.ArgumentParser(
         description="Generate Sudoku puzzles that mimics the look and feel of your daily newspaper.")
@@ -337,11 +338,8 @@ if __name__ == "__main__":
     # Create and render Sudoku puzzles based on the given template.
     chosen_template = Template(args.template).load()
     creator = Creator(seed=args.seed)
-    embedding = Embedding(chosen_template, creator).render(        highlight_quadrangle=args.highlight_quadrangle).save(args.out_file)
-
-
-
-
+    embedding = Embedding(chosen_template, creator).render(highlight_quadrangle=args.highlight_quadrangle).save(
+        args.out_file)
 
     cv2.imshow("hey", embedding.canvas)
     cv2.waitKey(0)
