@@ -1,6 +1,6 @@
 # Sudoku Puzzle Generator 
 
-![Examples Banner](./examples/examples-banner.png)
+![Examples Banner](./examples/collage.png)
 
 ## My Mother is a Sudoku Enthusiast
 
@@ -31,27 +31,27 @@ The generated Sudoku image will appear relative to your working directory.
 
 ![Newspaper Example Sudoku](./examples/newspaper-example-sudoku.png)
 
-This Sudoku was generated in the format of said newspaper. 
+These Sudokus were generated in the format of aforementioned newspaper. 
 Find the template in `templates/newspaper`. 
 
 ![Book Example Sudoku](./examples/book-example-sudoku.png)
 
-This template is derived from a [picture](https://www.flickr.com/photos/johnjack/4264107415) by [Random McRandomhead](https://www.flickr.com/photos/johnjack) that I found on Flickr. 
-Find the template in `templates/book`. 
-
-![Book Example Sudoku (2)](./examples/book-2-example-sudoku.png)
-
-Another template derived from a [picture](https://flickr.com/photos/keltikee/3466731534) that I found on Flickr, this time by [Mevout](https://flickr.com/photos/keltikee). 
-Find the template in `templates/book-2`. 
+Results can be more artistic. 
+This example is derived from a [photo](https://flickr.com/photos/keltikee/3466731534) by [Mevout](https://flickr.com/photos/keltikee) that I found on Flickr. 
+Find the corresponding template in `templates/book`. 
 
 ![Newspaper Example Sudoku (2)](./examples/newspaper-2-example-sudoku.png)
 
-Another [picture](https://flickr.com/photos/azriel100/214950693) found on Flickr, this time by [David_Beltra_Tejero](https://flickr.com/photos/azriel100/). 
+Another [photo](https://flickr.com/photos/azriel100/214950693) from Flickr, this time by [David_Beltra_Tejero](https://flickr.com/photos/azriel100/), let to the template `templates/newspaper-2`. 
+
+![Book Example Sudoku (2)](./examples/book-2-example-sudoku.png)
+
+The third and last Flickr-based template was derived from a [photo](https://www.flickr.com/photos/johnjack/4264107415) by [Random McRandomhead](https://www.flickr.com/photos/johnjack). 
+Find the template in `templates/book-2`. 
 
 ![Plain Example Sudoku](./examples/plain-example-sudoku.png)
 
-A plain template for those who just want to generate Sudoku puzzles. 
-For this result, use the provided template `templates/plain`.
+And for those of you who want no more that a plain Sudoku puzzle, there is also the minimalistic template `templates/plain`.
 
 
  

@@ -340,6 +340,3 @@ if __name__ == "__main__":
     creator = Creator(seed=args.seed)
     embedding = Embedding(chosen_template, creator).render(highlight_quadrangle=args.highlight_quadrangle).save(
         args.out_file)
-
-    cv2.imshow("hey", embedding.canvas)
-    cv2.waitKey(0)
