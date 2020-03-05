@@ -14,7 +14,7 @@ However, it turns out that neither of them accepted my generated puzzles.
 They were simply not authentic enough and couldn't reach up to the newspaper experience. 
 
 The "look and feel was not the same" and the puzzles were "too difficult", they said. 
-So I went ahead with a scanned copy of their preferred format and built this second generator around it. 
+So, I went ahead with a scanned copy of their preferred format and built this second generator around it. 
 The result: a Sudoku puzzle generator that mimics the desired look to a degree that is indistinguishable from the original. 
 
 ## Generate Your Own Sudoku Puzzles
@@ -51,7 +51,7 @@ Find the template in `templates/book-2`.
 
 ![Plain Example Sudoku](./examples/plain-example-sudoku.png)
 
-And for those of you who want no more that a plain Sudoku puzzle, there is also the minimalistic template `templates/plain`.
+And for those of you who want no more than a plain Sudoku puzzle, there is also the minimalistic template `templates/plain`.
 
 
  
