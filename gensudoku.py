@@ -331,6 +331,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--template", metavar="PATH", type=str, required=True,
                         help="path to the template directory")
     parser.add_argument("-s", "--seed", metavar="INT", type=int, help="random integer seed")
+    parser.add_argument("-n", "--num", metavar="INT", type=int, default=1, help="number of images to generate")
     parser.add_argument("-o", "--out-file", metavar="PATH", type=str, required=True, help="path to output file")
     parser.add_argument("-x", "--highlight-quadrangle", action="store_true", help="highlight quadrangle")
     args = parser.parse_args()
@@ -338,5 +339,7 @@ if __name__ == "__main__":
     # Create and render Sudoku puzzles based on the given template.
     chosen_template = Template(args.template).load()
     creator = Creator(seed=args.seed)
-    embedding = Embedding(chosen_template, creator).render(highlight_quadrangle=args.highlight_quadrangle).save(
-        args.out_file)
+    embedding = Embedding(chosen_template, creator)
+
+    for i in range(args.num):
+        embedding.render(highlight_quadrangle=args.highlight_quadrangle).save(args.out_file.format(i))
