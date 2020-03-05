@@ -342,6 +342,6 @@ if __name__ == "__main__":
     embedding = Embedding(chosen_template, creator)
 
     for i in range(args.num):
-        print("Generating Sudoku puzzle {}/{}... ".format(i+1, args.num), end="", flush=True)
+        print("Generating Sudoku puzzle {}/{}... ".format(i + 1, args.num), end="", flush=True)
         embedding.render(highlight_quadrangle=args.highlight_quadrangle).save(args.out_file.format(i))
         print("done.")
