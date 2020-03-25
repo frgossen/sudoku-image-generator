@@ -29,12 +29,14 @@ The generated Sudoku image will appear relative to your working directory.
 ./gensudoku.py -t templates/newspaper -o my-first-sudoku.png
 ```
 
-## Examples
+## Example 1
 
 ![Newspaper Example Sudoku](./examples/newspaper-example-sudoku.png)
 
 These Sudokus were generated in the format of aforementioned newspaper.
 Find the template in `templates/newspaper`.
+
+## Example 2
 
 ![Book Example Sudoku](./examples/book-example-sudoku.png)
 
@@ -42,14 +44,20 @@ Results can be more artistic.
 This example is derived from a [photo](https://flickr.com/photos/keltikee/3466731534) by [Mevout](https://flickr.com/photos/keltikee) that I found on Flickr.
 Find the corresponding template in `templates/book`.
 
+## Example 3
+
 ![Newspaper Example Sudoku (2)](./examples/newspaper-2-example-sudoku.png)
 
 Another [photo](https://flickr.com/photos/azriel100/214950693) from Flickr, this time by [David_Beltra_Tejero](https://flickr.com/photos/azriel100/), let to the template `templates/newspaper-2`.
+
+## Example 4
 
 ![Book Example Sudoku (2)](./examples/book-2-example-sudoku.png)
 
 The third and last Flickr-based template was derived from a [photo](https://www.flickr.com/photos/johnjack/4264107415) by [Random McRandomhead](https://www.flickr.com/photos/johnjack).
 Find the template in `templates/book-2`.
+
+## Example 5
 
 ![Plain Example Sudoku](./examples/plain-example-sudoku.png)
 
