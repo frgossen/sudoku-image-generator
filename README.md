@@ -1,4 +1,4 @@
-# Sudoku Puzzle Generator
+# Sudoku Image Generator
 
 ![Examples Banner](./examples/collage.png)
 
